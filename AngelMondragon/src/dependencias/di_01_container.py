@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 class IRepositorioBD(ABC):
     @abstractmethod
     def guardar(self, pedido):
