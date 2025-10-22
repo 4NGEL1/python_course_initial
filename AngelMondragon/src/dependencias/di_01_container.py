@@ -1,0 +1,36 @@
+class IRepositorioBD(ABC):
+    @abstractmethod
+    def guardar(self, pedido):
+        pass
+
+class RepositorioBD(IRepositorioBD):
+    def guardar(self, pedido):
+        print(f"Guardando el pedido {pedido} en la base de datos.")
+
+class ServicePedido:
+    def __init__(self, repositorio: IRepositorioBD):
+        self.repositorio = repositorio
+
+    def crear_pedido(self, pedido):
+        print(f"Creando el pedido {pedido}.")
+        self.repositorio.guardar(pedido)
+
+class Container:
+    def __init__(self):
+        self._services = {}
+
+    def register(self, name, service):
+        self._services[name] = service
+
+    def resolve(self, name):
+        service = self._services.get(name)
+        if not service:
+            raise ValueError(f"Service '{name}' not found in container.")
+        return service
+
+container = Container()
+container.register("repositorio", lambda: RepositorioBD())
+container.register("service_pedido", lambda: ServicePedido(container.resolve("repositorio")()))
+
+service = container.resolve("service_pedido")()
+service.crear_pedido("Pedido #1234")
